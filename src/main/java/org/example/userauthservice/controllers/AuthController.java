@@ -1,18 +1,15 @@
 package org.example.userauthservice.controllers;
 
-import org.antlr.v4.runtime.misc.Pair;
 import org.example.userauthservice.dtos.LoginRequestDto;
 import org.example.userauthservice.dtos.SignupRequestDto;
 import org.example.userauthservice.dtos.UserDto;
+import org.example.userauthservice.models.Token;
 import org.example.userauthservice.models.User;
 import org.example.userauthservice.services.IAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,12 +25,21 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDto> login(@RequestBody LoginRequestDto loginRequestDto) {
-        Pair<User, String> userWithToken = authService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
-        UserDto userDto = from(userWithToken.a);
-        return new ResponseEntity<>(userDto, HttpStatus.OK);
+    public ResponseEntity<String> login(@RequestBody LoginRequestDto loginRequestDto) {
+       Token token = authService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+//        UserDto userDto = new UserDto();
+//        userDto.setEmail(token.getUser().getEmail());
+//        userDto.setRoles(token.getUser().getRoles());
+//        userDto.setTokenValue(token.getToken());
+
+        return new ResponseEntity<>(token.getToken(), HttpStatus.OK);
     }
 
+    @GetMapping("/validate/{tokenValue}")
+    public void validateToken(@PathVariable String tokenValue) {
+        // This method can be used to validate the token if needed
+        // For now, it is left empty as per the original code
+    }
     private UserDto from(User user){
         UserDto userDto = new UserDto();
         userDto.setUsername(user.getUsername());

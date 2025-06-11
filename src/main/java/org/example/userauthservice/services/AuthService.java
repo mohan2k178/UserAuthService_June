@@ -7,11 +7,14 @@ import org.example.userauthservice.exceptions.UserAlreadyExistException;
 import org.example.userauthservice.exceptions.UserNotSignedException;
 import org.example.userauthservice.models.Token;
 import org.example.userauthservice.models.User;
+import org.example.userauthservice.repos.TokenRepository;
 import org.example.userauthservice.repos.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -21,6 +24,9 @@ public class AuthService implements IAuthService {
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private TokenRepository tokenRepository;
 
     public User signup(String username,  String password, String email, String phone){
         Optional<User> userOptional = userRepo.findByEmailEquals(email);
@@ -41,7 +47,7 @@ public class AuthService implements IAuthService {
     }
 
 
-    public Pair<User, String> login(String email, String password){
+    public Token login(String email, String password){
         Optional<User> userOptional = userRepo.findByEmailEquals(email);
         if(userOptional.isEmpty()){
             throw new UserNotSignedException("Please try signup first");
@@ -61,9 +67,13 @@ public class AuthService implements IAuthService {
         Token token = new Token();
           token.setUser(userOptional.get());
           token.setToken(RandomStringUtils.randomAlphanumeric(128));
-          token.setExpireAt();
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, 30);
+        Date datePlus30Days = calendar.getTime();
 
-        return new Pair<>(userOptional.get(), "token");
+          token.setExpireAt(datePlus30Days);
+          return tokenRepository.save(token);
+
 
     }
 
