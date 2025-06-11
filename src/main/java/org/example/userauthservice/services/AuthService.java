@@ -2,6 +2,7 @@ package org.example.userauthservice.services;
 
 import org.antlr.v4.runtime.misc.Pair;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.example.userauthservice.exceptions.InvalidTokenException;
 import org.example.userauthservice.exceptions.PasswordMismatchException;
 import org.example.userauthservice.exceptions.UserAlreadyExistException;
 import org.example.userauthservice.exceptions.UserNotSignedException;
@@ -75,6 +76,23 @@ public class AuthService implements IAuthService {
           return tokenRepository.save(token);
 
 
+    }
+
+    @Override
+    public User validateToken(String tokenValue) {
+        Optional<Token> tokenOptional = tokenRepository.findByTokenAndExpireAtAfter(tokenValue, new Date());
+         // Check if the token exists and is not expired
+         // If not, throw an exception
+        if (tokenOptional.isEmpty()) {
+            return null;
+        }
+
+        return tokenOptional.get().getUser();
+
+//        if (token.getExpireAt().before(new Date())) {
+//            throw new UserNotSignedException("Token has expired");
+//        }
+//        return token.getUser();
     }
 
 }

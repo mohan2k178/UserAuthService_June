@@ -7,4 +7,5 @@ import org.example.userauthservice.models.User;
 public interface IAuthService {
     User signup(String username, String password, String email, String phone);
     Token login(String email, String password);
+    User validateToken(String token);
 }

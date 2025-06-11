@@ -36,11 +36,17 @@ public class AuthController {
     }
 
     @GetMapping("/validate/{tokenValue}")
-    public void validateToken(@PathVariable String tokenValue) {
+    public UserDto validateToken(@PathVariable String tokenValue) {
         // This method can be used to validate the token if needed
         // For now, it is left empty as per the original code
+        User user = authService.validateToken(tokenValue);
+        return from(user);
     }
     private UserDto from(User user){
+        if(user == null) {
+            return null;
+        }
+
         UserDto userDto = new UserDto();
         userDto.setUsername(user.getUsername());
         userDto.setEmail(user.getEmail());
